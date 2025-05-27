@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>❤️ Azra’nın Renkli Kutuları</title>
+  <style>
+    body {
+      font-family: 'Segoe UI Emoji', sans-serif;
+      background: white;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: deeppink;
+    }
+    #game {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tile {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .tile.revealed {
+      cursor: default;
+    }
+    #status {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: pink;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💗 Azra’nın Renkli Kutuları</h1>
+  <div id="status">Kalan Hak: <span id="haksayac">8</span></div>
+  <div id="game"></div>
+  <div id="result"></div>
+  <button onclick="tekrarOyna()" style="display:none" id="replay">Tekrar Oyna</button>
+
+  <script>
+    const semboller = ["❤️", "💍", "🍫", "🌹", "🧸", "💌", "🎁", "🌟"];
+    let sembolListesi = [...semboller.flatMap(s => Array(4).fill(s)), ...Array(4).fill("💣")];
+    let butonlar = [];
+    let denemeHakki = 8;
+    let oyunBitti = false;
+
+    function karistir(dizi) {
+      for (let i = dizi.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [dizi[i], dizi[j]] = [dizi[j], dizi[i]];
+      }
+      return dizi;
+    }
+
+    function kutuOlustur() {
+      const game = document.getElementById("game");
+      game.innerHTML = "";
+      sembolListesi = karistir([...semboller.flatMap(s => Array(4).fill(s)), ...Array(4).fill("💣")]);
+      butonlar = [];
+      oyunBitti = false;
+      denemeHakki = 8;
+      document.getElementById("haksayac").textContent = denemeHakki;
+      document.getElementById("result").textContent = "";
+      document.getElementById("replay").style.display = "none";
+
+      for (let i = 0; i < 32; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.dataset.sembol = sembolListesi[i];
+        tile.onclick = () => tikla(tile);
+        game.appendChild(tile);
+        butonlar.push(tile);
+      }
+    }
+
+    function tikla(tile) {
+      if (oyunBitti || tile.classList.contains("revealed")) return;
+
+      const sembol = tile.dataset.sembol;
+      tile.textContent = sembol;
+      tile.classList.add("revealed");
+
+      if (sembol === "💣") {
+        oyunBitti = true;
+        document.getElementById("result").textContent = "😢 Askime yüzük yok";
+        tile.style.backgroundColor = "lightcoral";
+        butonlar.forEach(b => {
+          b.textContent = b.dataset.sembol;
+          b.classList.add("revealed");
+        });
+        document.getElementById("replay").style.display = "inline-block";
+      } else {
+        denemeHakki--;
+        document.getElementById("haksayac").textContent = denemeHakki;
+        if (denemeHakki === 0) {
+          oyunBitti = true;
+          document.getElementById("result").textContent = "💍 Askimle evleniyoruz";
+          butonlar.forEach(b => {
+            b.textContent = b.dataset.sembol;
+            b.classList.add("revealed");
+          });
+          document.getElementById("replay").style.display = "inline-block";
+        }
+      }
+    }
+
+    function tekrarOyna() {
+      kutuOlustur();
+    }
+
+    kutuOlustur();
+  </script>
+</body>
+</html>
